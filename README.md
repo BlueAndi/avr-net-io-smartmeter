@@ -4,8 +4,8 @@ It runs on the AVR-NET-IO board from Pollin.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://choosealicense.com/licenses/mit/)
 [![Repo Status](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
-[![Release](https://img.shields.io/github/release/BlueAndi/avr-io-smartmeter.svg)](https://github.com/BlueAndi/avr-io-smartmeter/releases)
-[![PlatformIO CI](https://github.com/BlueAndi/avr-io-smartmeter/workflows/PlatformIO%20CI/badge.svg?branch=master)](https://github.com/BlueAndi/avr-io-smartmeter/actions?query=workflow%3A%22PlatformIO+CI%22)
+[![Release](https://img.shields.io/github/release/BlueAndi/avr-net-io-smartmeter.svg)](https://github.com/BlueAndi/avr-net-io-smartmeter/releases)
+[![PlatformIO CI](https://github.com/BlueAndi/avr-net-io-smartmeter/workflows/PlatformIO%20CI/badge.svg?branch=master)](https://github.com/BlueAndi/avr-net-io-smartmeter/actions?query=workflow%3A%22PlatformIO+CI%22)
 
 - [AVR-NET-IO-Smartmeter](#avr-net-io-smartmeter)
 - [Motivation](#motivation)
@@ -154,7 +154,7 @@ Response:
 Status 0 means successful. If the request fails, it the status will be non-zero and data is empty.
 
 # Issues, Ideas And Bugs
-If you have further ideas or you found some bugs, great! Create a [issue](https://github.com/BlueAndi/Rego6xxSrv/issues) or if you are able and willing to fix it by yourself, clone the repository and create a pull request.
+If you have further ideas or you found some bugs, great! Create a [issue](https://github.com/BlueAndi/avr-net-io-smartmeter/issues) or if you are able and willing to fix it by yourself, clone the repository and create a pull request.
 
 # License
 The whole source code is published under the [MIT license](http://choosealicense.com/licenses/mit/).
