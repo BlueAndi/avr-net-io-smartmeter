@@ -107,7 +107,8 @@ Note, after retrieving the information, the number of counted pulses will be res
 
 Response:
 ```json
-{ "data": {
+{
+  "data": {
     "id": 0,
     "name": "S0-0",
     "powerConsumption": 230,
@@ -134,7 +135,8 @@ Note, after retrieving the information, the number of counted pulses will be res
 
 Response:
 ```json
-{ "data": [{
+{
+  "data": [{
     "id": 0,
     "name": "S0-0",
     "powerConsumption": 230,
