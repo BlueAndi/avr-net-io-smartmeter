@@ -106,7 +106,7 @@ Note, after retrieving the information, the number of counted pulses will be res
 * The S0 interface id is in range [0; 8].
 
 Response:
-```
+```json
 { "data": {
     "id": 0,
     "name": "S0-0",
@@ -133,7 +133,7 @@ A S0 interface contains the following data:
 Note, after retrieving the information, the number of counted pulses will be reset to 0.
 
 Response:
-```
+```json
 { "data": [{
     "id": 0,
     "name": "S0-0",
