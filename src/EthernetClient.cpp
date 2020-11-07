@@ -99,11 +99,17 @@ int EthernetClient::peek()
 
 size_t EthernetClient::write(const uint8_t* buffer, size_t size)
 {
-    m_bufferFiller = ether.tcpOffset();
-    m_bufferFiller.emit_raw(reinterpret_cast<const char*>(buffer), size);
-    ether.httpServerReply(m_bufferFiller.position());
+    if (nullptr != m_bufferFiller.buffer())
+    {
+        m_bufferFiller.emit_raw(reinterpret_cast<const char*>(buffer), size);
+    }
 
     return size;
+}
+
+void EthernetClient::send()
+{
+    ether.httpServerReply(m_bufferFiller.position());
 }
 
 /******************************************************************************

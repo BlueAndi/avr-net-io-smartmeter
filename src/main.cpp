@@ -399,6 +399,12 @@ static void handleNetwork(void)
 
                 httpReply.send("Bad Request");
             }
+
+            /* Send TCP message now.
+             * Note, all previously calls to to httpReply will only push it to the internal
+             * client buffer.
+             */
+            client.send();
         }
     }
 }
@@ -436,28 +442,28 @@ static void handleRoot(EthernetClient& client, const HttpRequest& httpRequest)
             uint32_t      pulseCnt          = 0;
             unsigned long energyConsumption = 0;
             unsigned long durationLastReq   = 0;
-    
+
             s0Smartmeter.getResult(powerConsumption, energyConsumption, pulseCnt, durationLastReq);
-    
+
             data += F("<h2>Interface ");
             data += s0SmartmeterIndex;
             data += F(" - ");
             data += s0Smartmeter.getName();
             data += F("</h2>\r\n");
             data += F("<ul>\r\n");
-            
+
             data += F("    <li>Power Consumption: ");
             data += powerConsumption;
             data += F(" W</li>\r\n");
 
             data += F("    <li>Pulses counted: ");
             data += pulseCnt;
-            data += F("</li>\r\n");                
-    
+            data += F("</li>\r\n");
+
             data += F("    <li>Energy Consumption: ");
             data += energyConsumption;
             data += F(" Ws</li>\r\n");
-    
+
             data += F("</ul>\r\n");
         }
     }
@@ -481,7 +487,7 @@ static void s0Smartmeter2JSON(S0Smartmeter& s0Smartmeter, JsonObject& jsonData)
     uint32_t      pulseCnt          = 0;
     unsigned long energyConsumption = 0;
     unsigned long durationLastReq   = 0;
-    
+
     s0Smartmeter.getResult(powerConsumption, energyConsumption, pulseCnt, durationLastReq);
 
     jsonData["id"]                  = s0Smartmeter.getId();
@@ -489,7 +495,7 @@ static void s0Smartmeter2JSON(S0Smartmeter& s0Smartmeter, JsonObject& jsonData)
     jsonData["powerConsumption"]    = powerConsumption;
     jsonData["pulses"]              = pulseCnt;
     jsonData["energyConsumption"]   = energyConsumption;
-    
+
     return;
 }
 
@@ -527,14 +533,14 @@ static void handleS0InterfaceReq(EthernetClient& client, const HttpRequest& http
     (void)serializeJson(jsonDoc, data);
 
     httpReply.send(data);
-    
+
     return;
 }
 
 /**
  * Handle the route for the /api/s0-interfaces folder, which responds with the data
  * in JSON format.
- * 
+ *
  * @param[in] client        Ethernet client, used to send the response.
  * @param[in] httpRequest   The http request itself.
  */
@@ -564,13 +570,13 @@ static void handleS0InterfacesReq(EthernetClient& client, const HttpRequest& htt
     (void)serializeJson(jsonDoc, data);
 
     httpReply.send(data);
-    
+
     return;
 }
 
 /**
  * Handle the route for the /configure/? folder.
- * 
+ *
  * @param[in] client        Ethernet client, used to send the response.
  * @param[in] httpRequest   The http request itself.
  */
@@ -583,7 +589,7 @@ static void handleConfigureGetReq(EthernetClient& client, const HttpRequest& htt
     data += reinterpret_cast<const __FlashStringHelper*>(HTML_PAGE_HEAD);
     data += F("<h1>AVR-NET-IO-Smartmeter</h1>\r\n");
     data += F("<h2>Configuration</h2>\r\n");
-    
+
     if (CONFIG_S0_SMARTMETER_MAX_NUM <= s0SmartmeterIndex)
     {
         data += F("<p>Invalid interface!</p>");
@@ -604,7 +610,7 @@ static void handleConfigureGetReq(EthernetClient& client, const HttpRequest& htt
         /* Interface enabled or disabled */
         data += F("Enabled: ");
         data += F("<select name=\"isEnabled\">");
-        
+
         if (false == s0Data.isEnabled)
         {
             data += F("<option value=\"0\" selected>false</option>");
@@ -615,7 +621,7 @@ static void handleConfigureGetReq(EthernetClient& client, const HttpRequest& htt
             data += F("<option value=\"0\">false</option>");
             data += F("<option value=\"1\" selected>true</option>");
         }
-        
+
         data += F("</select><br />\r\n");
 
         /* Interface user friendly name */
@@ -645,20 +651,20 @@ static void handleConfigureGetReq(EthernetClient& client, const HttpRequest& htt
         data += F("\"><br />\r\n");
 
         data += F("<input type=\"submit\" value=\"Update\">\r\n");
-         
+
         data += F("</form>\r\n");
     }
 
     data += reinterpret_cast<const __FlashStringHelper*>(HTML_PAGE_TAIL);
 
     httpReply.send(data);
-    
+
     return;
 }
 
 /**
  * Handle the route for the /configure/? folder.
- * 
+ *
  * @param[in] client        Ethernet client, used to send the response.
  * @param[in] httpRequest   The http request itself.
  */
@@ -688,7 +694,7 @@ static void handleConfigurePostReq(EthernetClient& client, const HttpRequest& ht
          * This is necessary to check whether a value is available or not.
          */
         size_t cnt = strcspn(body, tokStr) + strlen(tokStr) + 1;
-        
+
         LOG_DEBUG(tokStr);
 
         /* Interface enabled or not? */
@@ -702,9 +708,9 @@ static void handleConfigurePostReq(EthernetClient& client, const HttpRequest& ht
                 if (NULL != tokStr)
                 {
                     bool  isEnabled = false;
-                    
+
                     value = atol(tokStr);
-                    
+
                     if (0 == value)
                     {
                         isEnabled = false;
@@ -717,7 +723,7 @@ static void handleConfigurePostReq(EthernetClient& client, const HttpRequest& ht
                     if (isEnabled != s0Data.isEnabled)
                     {
                         s0Data.isEnabled = value;
-                        
+
                         isDirty = true;
                     }
                 }
@@ -732,7 +738,7 @@ static void handleConfigurePostReq(EthernetClient& client, const HttpRequest& ht
                 if (0 != strlen(s0Data.name))
                 {
                     s0Data.name[0] = '\0';
-                    
+
                     isDirty = true;
                 }
             }
@@ -774,7 +780,7 @@ static void handleConfigurePostReq(EthernetClient& client, const HttpRequest& ht
                             (S0Pin::mcPinRangeMax >= pinNo))
                         {
                             s0Data.pinS0 = pinNo;
-                            
+
                             isDirty = true;
                         }
                     }
@@ -802,7 +808,7 @@ static void handleConfigurePostReq(EthernetClient& client, const HttpRequest& ht
                             (S0Smartmeter::PULSES_PER_KWH_RANGE_MAX >= pulses))
                         {
                             s0Data.pulsesPerKWH = pulses;
-                            
+
                             isDirty = true;
                         }
                     }
@@ -822,7 +828,7 @@ static void handleConfigurePostReq(EthernetClient& client, const HttpRequest& ht
         uint8_t                   index       = 0;
         PersistentMemory::S0Data  s0DataOther;
         bool                      isInvalid   = false;
-        
+
         /* Verify that the new parameters are valid to all other
          * activated interfaces.
          */
@@ -853,7 +859,7 @@ static void handleConfigurePostReq(EthernetClient& client, const HttpRequest& ht
         else
         {
             PersistentMemory::writeS0Data(s0SmartmeterIndex, s0Data);
-            
+
             LOG_INFO("Parameter updated. Please reboot.");
 
             data += F("Parameter updated. Please reboot.");
@@ -869,7 +875,7 @@ static void handleConfigurePostReq(EthernetClient& client, const HttpRequest& ht
     data += reinterpret_cast<const __FlashStringHelper*>(HTML_PAGE_TAIL);
 
     httpReply.send(data);
-    
+
     return;
 }
 
@@ -889,7 +895,7 @@ ISR(PCINT0_vect)
         if (true == gS0Smartmeters[index].isEnabled())
         {
             bitNo = gS0Smartmeters[index].getS0Pin().getPortBitNo();
-    
+
             /* Falling edge? */
             if ((0 != (lastValue & _BV(bitNo))) &&
                 (0 == (value & _BV(bitNo))))
@@ -900,6 +906,6 @@ ISR(PCINT0_vect)
     }
 
     lastValue = value;
-    
+
     return;
 }

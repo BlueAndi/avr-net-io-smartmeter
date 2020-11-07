@@ -63,7 +63,7 @@ public:
 
     /**
      * Constructs the ethernet client.
-     * 
+     *
      * @param[in] tcpSdu        TCP SDU
      * @param[in] tcpSduSize    Size in byte of the TCP SDU
      */
@@ -71,7 +71,7 @@ public:
         m_tcpSdu(tcpSdu),
         m_tcpSduSize(tcpSduSize),
         m_readPos(0),
-        m_bufferFiller()
+        m_bufferFiller(ether.tcpOffset())
     {
     }
 
@@ -84,30 +84,30 @@ public:
 
     /**
      * Get the number of available data.
-     * 
+     *
      * @return Number of byte which are available
      */
     int available() override;
 
     /**
      * Read a single data byte.
-     * 
+     *
      * @return Single data byte
      */
     int read() override;
 
     /**
      * Read a single data byte, but without increasing the internal read position.
-     * 
+     *
      * @return Single data byte
      */
     int peek() override;
 
     /**
      * Not supported!
-     * 
+     *
      * @param[in] data  Single data byte
-     * 
+     *
      * @return Number of written data byte
      */
     size_t write(uint8_t data) override
@@ -117,23 +117,31 @@ public:
     }
 
     /**
-     * Write a TCP message.
-     * 
+     * Write data to TCP payload.
+     *
      * @param[in] buffer    Message buffer
      * @param[in] size      Message buffer size in byte
-     * 
+     *
      * @return Number of written data byte
      */
     size_t write(const uint8_t* buffer, size_t size) override;
 
+    /**
+     * Send TCP message. The message itself must be assembled previously via
+     * write() calls.
+     */
+    void send();
+
 private:
-    
+
     const uint8_t*  m_tcpSdu;       /**< TCP SDU, containing a HTTP message. */
     uint16_t        m_tcpSduSize;   /**< TCP SDU size in byte */
     uint16_t        m_readPos;      /**< Read index inside the TCP SDU. */
     BufferFiller    m_bufferFiller; /**< HTTP response buffer, which is connected to the ethernet driver. */
 
     EthernetClient();
+    EthernetClient(const EthernetClient& client);
+    EthernetClient& operator=(const EthernetClient& client);
 };
 
 /******************************************************************************
