@@ -24,6 +24,7 @@ It runs on the AVR-NET-IO board from Pollin.
   - [Get data from all S0 interfaces at once (GET /api/s0-interfaces)](#get-data-from-all-s0-interfaces-at-once-get-apis0-interfaces)
 - [Issues, Ideas And Bugs](#issues-ideas-and-bugs)
 - [License](#license)
+- [Contribution](#contribution)
 
 # Motivation
 The idea was to have a simple way to get the power consumption of the heatpump and the rest of the house. The data shall be provided over a REST-API, which can easily be used from e.g. bash via curl. The data is retrieved periodically, pushed to a [influx-database](https://www.influxdata.com/) and visualized with [grafana](https://grafana.com/).
@@ -160,3 +161,7 @@ If you have further ideas or you found some bugs, great! Create a [issue](https:
 
 # License
 The whole source code is published under the [MIT license](http://choosealicense.com/licenses/mit/).
+
+# Contribution
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, shall be licensed as above, without any
+additional terms or conditions.
