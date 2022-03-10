@@ -5,7 +5,7 @@ It runs on the AVR-NET-IO board from Pollin.
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://choosealicense.com/licenses/mit/)
 [![Repo Status](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 [![Release](https://img.shields.io/github/release/BlueAndi/avr-net-io-smartmeter.svg)](https://github.com/BlueAndi/avr-net-io-smartmeter/releases)
-[![PlatformIO CI](https://github.com/BlueAndi/avr-net-io-smartmeter/workflows/PlatformIO%20CI/badge.svg?branch=master)](https://github.com/BlueAndi/avr-net-io-smartmeter/actions?query=workflow%3A%22PlatformIO+CI%22)
+[![PlatformIO CI](https://github.com/BlueAndi/avr-net-io-smartmeter/workflows/PlatformIO%20CI/badge.svg?branch=main)](https://github.com/BlueAndi/avr-net-io-smartmeter/actions?query=workflow%3A%22PlatformIO+CI%22)
 
 - [AVR-NET-IO-Smartmeter](#avr-net-io-smartmeter)
 - [Motivation](#motivation)
@@ -87,7 +87,7 @@ After the bootloader is installed and running, the typical Arduino upload can be
 
 ## Used Libraries
 * [MightyCore](https://github.com/MCUdude/MightyCore) - Arduino core for ATmega644.
-* [EtherCard](https://github.com/njh/EtherCard) - Driver for the Microchip ENC28J60 chip.
+* [EthernetENC](https://github.com/jandrassy/EthernetENC) - Ethernet library for ENC28J60 with Arduino compatible interface.
 * [ArduinoHttpServer](https://github.com/QuickSander/ArduinoHttpServer) - Server side minimalistic object oriented HTTP protocol implementation.
 * [ArduinoJSON](https://arduinojson.org/) - JSON library.
 
