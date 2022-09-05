@@ -488,7 +488,7 @@ static void handleRoot(EthernetClient& client, const HttpRequest& httpRequest)
 }
 
 /**
- * Add JSON S0 smartmeter object to string.
+ * Add S0 smartmeter parameters to JSON object.
  *
  * @param[in]       s0SmartmeterIndex   Index of the S0 smartmeter
  * @param[inout]    jsonData            JSON data object
@@ -503,6 +503,7 @@ static void s0Smartmeter2JSON(S0Smartmeter& s0Smartmeter, JsonObject& jsonData)
 
     jsonData["id"]                  = s0Smartmeter.getId();
     jsonData["name"]                = s0Smartmeter.getName();
+    jsonData["pulsesPer1KWh"]       = s0Smartmeter.getPulsesPerKWh();
     jsonData["powerConsumption"]    = powerConsumption;
     jsonData["pulses"]              = pulseCnt;
     jsonData["energyConsumption"]   = energyConsumption;
@@ -560,7 +561,7 @@ static void handleS0InterfacesReq(EthernetClient& client, const HttpRequest& htt
     ArduinoHttpServer::StreamHttpReply  httpReply(client, "application/json");
     String                              data;
     uint8_t                             s0SmartmeterIndex = 0;
-    DynamicJsonDocument                 jsonDoc(256);
+    DynamicJsonDocument                 jsonDoc(1024);
     JsonArray                           jsonDataArray     = jsonDoc.createNestedArray("data");
 
     for(s0SmartmeterIndex = 0; s0SmartmeterIndex < CONFIG_S0_SMARTMETER_MAX_NUM; ++s0SmartmeterIndex)

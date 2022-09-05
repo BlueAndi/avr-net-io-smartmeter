@@ -176,6 +176,7 @@ public:
         m_id(UINT8_MAX),
         m_isEnabled(false),
         m_name(""),
+        m_pulsesPerKWH(1000),
         m_energyPerPulse(0),
         m_s0Pin(),
         m_pulseCnt(0),
@@ -200,21 +201,22 @@ public:
      * @param[in] id            Unique id
      * @param[in] name          User friendly name of the S0 smartmeter
      * @param[in] pinS0         Arduino pin number, where the S0 is connected to
-     * @param[in] pulsePerKWH   How many pulses for 1 kWh
+     * @param[in] pulsesPerKWH  How many pulses for 1 kWh
      *
      * @return If S0 smartmeter is successful initialized, it will return true, otherwise false.
      */
-    bool init(uint8_t id, const char* name, uint8_t pinS0, uint32_t pulsePerKWH)
+    bool init(uint8_t id, const char* name, uint8_t pinS0, uint32_t pulsesPerKWH)
     {
         bool status = false;
         
         if ((true == m_s0Pin.init(pinS0)) &&
-            (PULSES_PER_KWH_RANGE_MIN <= pulsePerKWH) &&
-            (PULSES_PER_KWH_RANGE_MAX >= pulsePerKWH))
+            (PULSES_PER_KWH_RANGE_MIN <= pulsesPerKWH) &&
+            (PULSES_PER_KWH_RANGE_MAX >= pulsesPerKWH))
         {
             m_id                = id;
             m_name              = name;
-            m_energyPerPulse    = 60UL * 60UL * 1000UL / pulsePerKWH;
+            m_pulsesPerKWH      = pulsesPerKWH;
+            m_energyPerPulse    = 60UL * 60UL * 1000UL / pulsesPerKWH;
             
             status = true;
         }
@@ -284,6 +286,16 @@ public:
         return m_s0Pin;
     }
     
+    /**
+     * Get the number of pulses for 1 kWh.
+     * 
+     * @return Pulses per 1 kWh
+     */
+    uint32_t getPulsesPerKWh(void) const
+    {
+        return m_pulsesPerKWH;
+    }
+
     /**
      * Get current number of counted pulses.
      *
@@ -364,6 +376,7 @@ private:
     uint8_t     m_id;               /**< S0 smartmeter id */
     bool        m_isEnabled;        /**< S0 smartmeter is enabled or disabled */
     String      m_name;             /**< S0 smartmeter name in user friendly form */
+    uint32_t    m_pulsesPerKWH;     /**< Number of pulses for 1 kWh. */
     uint32_t    m_energyPerPulse;   /**< Energy per pulse in Ws */
     S0Pin       m_s0Pin;            /**< S0 pin configuration */
 

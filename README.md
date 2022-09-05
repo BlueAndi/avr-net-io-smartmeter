@@ -110,6 +110,7 @@ Response:
   "data": {
     "id": 0,
     "name": "S0-0",
+    "pulsesPer1KWh": 1000,
     "powerConsumption": 230,
     "pulses": 40,
     "energyConsumption": 460
@@ -136,12 +137,14 @@ Response:
   "data": [{
     "id": 0,
     "name": "S0-0",
+    "pulsesPer1KWh": 1000,
     "powerConsumption": 230,
     "pulses": 40,
     "energyConsumption": 460
   }, {
     "id": 1,
     "name": "S0-1",
+    "pulsesPer1KWh": 1000,
     "powerConsumption": 50,
     "pulses": 20,
     "energyConsumption": 100
