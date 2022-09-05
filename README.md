@@ -15,6 +15,7 @@ It runs on the AVR-NET-IO board from Pollin.
   - [IDE](#ide)
   - [Installation](#installation)
   - [Install bootloader](#install-bootloader)
+  - [Change MAC address of network interface controller](#change-mac-address-of-network-interface-controller)
   - [Build Project](#build-project)
   - [Update of the device](#update-of-the-device)
     - [Update via serial interface](#update-via-serial-interface)
@@ -72,6 +73,9 @@ Note, for the following steps I used the AtmelStudio v7.0 with my AVR-ISP progra
 3. If the bootloader is active, two pulses are shown on pin B0 (= Arduino pin 0), which can be checked with a oscilloscope.
 
 After the bootloader is installed and running, the typical Arduino upload can be used over the serial interface.
+
+## Change MAC address of network interface controller
+Every AVR-NET-IO board comes with a unique MAC address of the network interface controller. Before you build the software it is necessary to set it in the sourcecode. Therefore open ```./src/main.cpp``` in the editor, search for the variable ```DEVICE_MAC_ADDR``` and change it accordingly.
 
 ## Build Project
 1. Load workspace in VSCode.
