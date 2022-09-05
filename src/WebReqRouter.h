@@ -172,10 +172,10 @@ public:
             {
                 int lastIndex = m_routes[idx].uri.lastIndexOf('?');
 
-                /* Contans URI a dynamic part? */
+                /* Contains URI a dynamic part? */
                 if (0 <= lastIndex)
                 {
-                    String staticUriPart = m_routes[idx].uri.substring(0, lastIndex - 1);
+                    String staticUriPart = m_routes[idx].uri.substring(0, lastIndex);
 
                     if (0 != httpRequest.getResource().toString().startsWith(staticUriPart))
                     {
