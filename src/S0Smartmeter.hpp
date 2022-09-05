@@ -180,6 +180,7 @@ public:
         m_s0Pin(),
         m_pulseCnt(0),
         m_timestamp(0L),
+        m_isFirstPulse(true),
         m_powerConsumption(0L),
         m_isUpdated(false),
         m_timestampLastReq(0L)
@@ -316,12 +317,18 @@ public:
         /* Store current timestamp of this pulse */
         m_timestamp = timestamp;
     
-        /* Calculate average power consumption over 2 values
-         * Current power consumption = energy per pulse / time between two pulses
-         * Avg. power consumption = (current power consumption + last power consumption) / 2
+        /* Start calculation the power consumption with the 2nd pulse.
+         * The first pulse is just used to initialize the m_timestamp.
          */
-        m_powerConsumption += ( m_energyPerPulse * 1000 ) / diff;
-        m_powerConsumption /= 2;
+        if (false == m_isFirstPulse)
+        {
+            /* Calculate average power consumption over 2 values
+             * Current power consumption = energy per pulse / time between two pulses
+             * Avg. power consumption = (current power consumption + last power consumption) / 2
+             */
+            m_powerConsumption += ( m_energyPerPulse * 1000 ) / diff;
+            m_powerConsumption /= 2;
+        }
     
         if (false == m_isUpdated)
         {
@@ -381,6 +388,7 @@ private:
 
     volatile uint32_t       m_pulseCnt;         /**< Counted pulses */
     volatile unsigned long  m_timestamp;        /**< Timestamp in ms of last pulse */
+    volatile bool           m_isFirstPulse;     /**< Used to initialize the m_timestamp with the first pulse. */
     volatile unsigned long  m_powerConsumption; /**< Average power consumption in W (calculated over 2 values) */
     volatile bool           m_isUpdated;        /**< Marks whether the S0 smartmeter is updated or not, since last request by user */
     volatile unsigned long  m_timestampLastReq; /**< Timestamp in ms before last request by user */
