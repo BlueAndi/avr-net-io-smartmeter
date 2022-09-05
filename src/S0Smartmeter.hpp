@@ -308,7 +308,6 @@ public:
     void internalISR(void)
     {
         unsigned long timestamp = millis();
-        unsigned long diff      = timestamp - m_timestamp;
     
         /* Count the pulse continuously */
         ++m_pulseCnt;
@@ -321,6 +320,8 @@ public:
          */
         if (false == m_isFirstPulse)
         {
+            unsigned long diff = timestamp - m_timestamp;
+
             /* Calculate average power consumption over 2 values
              * Current power consumption = energy per pulse / time between two pulses
              * Avg. power consumption = (current power consumption + last power consumption) / 2
