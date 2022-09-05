@@ -181,9 +181,7 @@ public:
         m_pulseCnt(0),
         m_timestamp(0L),
         m_isFirstPulse(true),
-        m_powerConsumption(0L),
-        m_isUpdated(false),
-        m_timestampLastReq(0L)
+        m_powerConsumption(0L)
     {
         
     }
@@ -312,6 +310,7 @@ public:
         unsigned long timestamp = millis();
         unsigned long diff      = timestamp - m_timestamp;
     
+        /* Count the pulse continuously */
         ++m_pulseCnt;
     
         /* Store current timestamp of this pulse */
@@ -329,45 +328,26 @@ public:
             m_powerConsumption += ( m_energyPerPulse * 1000 ) / diff;
             m_powerConsumption /= 2;
         }
-    
-        if (false == m_isUpdated)
-        {
-            m_timestampLastReq = timestamp;
-            m_isUpdated        = true;
-        }
-        
+            
         return;
     }
 
     /**
      * Get current result of power and energy consumption.
      * 
-     * Note, every call of this method will reset the pulse counter!
-     * 
      * @param[out] powerConsumption   Power consumption in W
      * @param[out] energyConsumption  Energy consumption in Ws
      * @param[out] pulseCnt           Number of pulses counted since last call
-     * @param[out] durationLastReq    Duration in ms, from last update till this call
      */
-    void getResult(unsigned long& powerConsumption, unsigned long& energyConsumption, uint32_t& pulseCnt, unsigned long& durationLastReq)
-    {
-        unsigned long timestampLastReq  = 0;
-    
+    void getResult(unsigned long& powerConsumption, unsigned long& energyConsumption, uint32_t& pulseCnt)
+    {    
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
             powerConsumption  = m_powerConsumption;
             pulseCnt          = m_pulseCnt;
-            timestampLastReq  = m_timestampLastReq;
-    
-            /* Reset pulse counter */
-            m_pulseCnt = 0;
-
-            /* Wait for next update */
-            m_isUpdated = false;
         }
 
         energyConsumption = pulseCnt * m_energyPerPulse;
-        durationLastReq   = millis() - timestampLastReq;
         
         return;
     }
@@ -390,8 +370,6 @@ private:
     volatile unsigned long  m_timestamp;        /**< Timestamp in ms of last pulse */
     volatile bool           m_isFirstPulse;     /**< Used to initialize the m_timestamp with the first pulse. */
     volatile unsigned long  m_powerConsumption; /**< Average power consumption in W (calculated over 2 values) */
-    volatile bool           m_isUpdated;        /**< Marks whether the S0 smartmeter is updated or not, since last request by user */
-    volatile unsigned long  m_timestampLastReq; /**< Timestamp in ms before last request by user */
 
     /* Never copy an S0 smartmeter instance! */
     S0Smartmeter(const S0Smartmeter& interf);

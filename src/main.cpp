@@ -454,9 +454,8 @@ static void handleRoot(EthernetClient& client, const HttpRequest& httpRequest)
             unsigned long powerConsumption  = 0;
             uint32_t      pulseCnt          = 0;
             unsigned long energyConsumption = 0;
-            unsigned long durationLastReq   = 0;
 
-            s0Smartmeter.getResult(powerConsumption, energyConsumption, pulseCnt, durationLastReq);
+            s0Smartmeter.getResult(powerConsumption, energyConsumption, pulseCnt);
 
             data += F("<h2>Interface ");
             data += s0SmartmeterIndex;
@@ -489,7 +488,7 @@ static void handleRoot(EthernetClient& client, const HttpRequest& httpRequest)
 }
 
 /**
- * Add JSON S0 smarmeter object to string.
+ * Add JSON S0 smartmeter object to string.
  *
  * @param[in]       s0SmartmeterIndex   Index of the S0 smartmeter
  * @param[inout]    jsonData            JSON data object
@@ -499,9 +498,8 @@ static void s0Smartmeter2JSON(S0Smartmeter& s0Smartmeter, JsonObject& jsonData)
     unsigned long powerConsumption  = 0;
     uint32_t      pulseCnt          = 0;
     unsigned long energyConsumption = 0;
-    unsigned long durationLastReq   = 0;
 
-    s0Smartmeter.getResult(powerConsumption, energyConsumption, pulseCnt, durationLastReq);
+    s0Smartmeter.getResult(powerConsumption, energyConsumption, pulseCnt);
 
     jsonData["id"]                  = s0Smartmeter.getId();
     jsonData["name"]                = s0Smartmeter.getName();

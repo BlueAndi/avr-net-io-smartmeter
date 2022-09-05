@@ -32,8 +32,8 @@ The idea was to have a simple way to get the power consumption of the heatpump a
 # Usage
 
 1. Connect your S0 signal with the board, see the table in the next chapter.
-2. Browse to http://&lt;device-ip-address&gt;/configure with your favorite browser.
-3. Configure the S0 interface.
+2. Configure S0 interface (0-7) by browsing to http://&lt;device-ip-address&gt;/configure/&lt;s0-interface&gt; with your favorite browser. Replace &lt;s0-interface&gt; with the S0 interface id.
+3. Configure the S0 interface and enable it.
 
 # Electronic
 
@@ -97,14 +97,12 @@ After the bootloader is installed and running, the typical Arduino upload can be
 Get S0 interface data:
 * S0 interface unique id.
 * S0 interface name.
-* The current power consumption in W, measured as average from the last request till now.
-* Number of pulses counted from the last request till now.
-* Energy consumption in Wh, measured as average from the last request till now.
-
-Note, after retrieving the information, the number of counted pulses will be reset to 0.
+* The current power consumption in W.
+* Number of counted pulses.
+* Energy consumption in Wh, depended on the number of counted pulses.
 
 ```<s0-interface-id>```:
-* The S0 interface id is in range [0; 8].
+* The S0 interface id is in range [0; 7].
 
 Response:
 ```json
@@ -128,11 +126,9 @@ Get data from all S0 interfaces at once.
 A S0 interface contains the following data:
 * S0 interface unique id.
 * S0 interface name.
-* The current power consumption in W, measured as average from the last request till now.
-* Number of pulses counted from the last request till now.
-* Energy consumption in Wh, measured as average from the last request till now.
-
-Note, after retrieving the information, the number of counted pulses will be reset to 0.
+* The current power consumption in W.
+* Number of counted pulses.
+* Energy consumption in Wh, depended on the number of counted pulses.
 
 Response:
 ```json
