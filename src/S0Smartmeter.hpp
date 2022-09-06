@@ -324,14 +324,15 @@ public:
     
         /* Count the pulse continuously */
         ++m_pulseCnt;
-    
-        /* Store current timestamp of this pulse */
-        m_timestamp = timestamp;
-    
+       
         /* Start calculation the power consumption with the 2nd pulse.
          * The first pulse is just used to initialize the m_timestamp.
          */
-        if (false == m_isFirstPulse)
+        if (true == m_isFirstPulse)
+        {
+            m_isFirstPulse = false;
+        }
+        else
         {
             /* Calculate time till the last pulse. */
             m_lastTimeDiff      = timestamp - m_timestamp;
@@ -342,7 +343,10 @@ public:
             /* Calculate current power consumption. */
             m_powerConsumption = ( m_energyPerPulse * 1000 ) / m_lastTimeDiff;
         }
-            
+
+        /* Store current timestamp of this pulse */
+        m_timestamp = timestamp;
+
         return;
     }
 
