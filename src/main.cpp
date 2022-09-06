@@ -283,7 +283,20 @@ void setup()
  */
 void loop()
 {
+    uint8_t s0SmartmeterIndex = 0;
+
     handleNetwork();
+
+    /* Process all enabled S0 smartmeters. */
+    for(s0SmartmeterIndex = 0; s0SmartmeterIndex < CONFIG_S0_SMARTMETER_MAX_NUM; ++s0SmartmeterIndex)
+    {
+        S0Smartmeter& s0Smartmeter = gS0Smartmeters[s0SmartmeterIndex];
+
+        if (true == s0Smartmeter.isEnabled())
+        {
+            s0Smartmeter.process();
+        }
+    }
 
     return;
 }

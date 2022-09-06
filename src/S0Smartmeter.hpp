@@ -182,7 +182,8 @@ public:
         m_pulseCnt(0),
         m_timestamp(0L),
         m_isFirstPulse(true),
-        m_powerConsumption(0L)
+        m_powerConsumption(0L),
+        m_lastTimeDiff(0L)
     {
         
     }
@@ -332,14 +333,14 @@ public:
          */
         if (false == m_isFirstPulse)
         {
-            unsigned long diff = timestamp - m_timestamp;
+            /* Calculate time till the last pulse. */
+            m_lastTimeDiff      = timestamp - m_timestamp;
 
-            /* Calculate average power consumption over 2 values
-             * Current power consumption = energy per pulse / time between two pulses
-             * Avg. power consumption = (current power consumption + last power consumption) / 2
-             */
-            m_powerConsumption += ( m_energyPerPulse * 1000 ) / diff;
-            m_powerConsumption /= 2;
+            /* Calculate time after which the power will be decreased manually, because waiting for next pulse. */
+            m_decPowerDuration  = 2 * m_lastTimeDiff;
+
+            /* Calculate current power consumption. */
+            m_powerConsumption = ( m_energyPerPulse * 1000 ) / m_lastTimeDiff;
         }
             
         return;
@@ -364,6 +365,53 @@ public:
         
         return;
     }
+
+    /**
+     * Handle S0 smartmeter power consumption calculation.
+     * This mechanism is used in case that a high power consumption changes to a low power consumption.
+     * A low power consumption means the time to the next pulse increases. If in between the current
+     * power is requested, the last calculated high power consumption will be returned. This is bad!
+     * Therefore the power will be decreased by (2^x) * last time between two pulses.
+     */
+    void process(void)
+    {
+        /* S0 smartmeter must be enabled and the mechanism can only be used
+         * in case at least 2 pulses were received at all.
+         */
+        if ((true == m_isEnabled) && (false == m_isFirstPulse))
+        {
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+            {
+                /* If power is greater than 0, it will be checked whether it is time to decrease the power consumption. */
+                if (0 < m_powerConsumption)
+                {
+                    unsigned long timeTillLastPulse = millis() - m_timestamp;
+
+                    /* Time to decrease the power consumption? */
+                    if (m_decPowerDuration <= timeTillLastPulse)
+                    {
+                        unsigned long delta = ( m_energyPerPulse * 1000 ) / m_decPowerDuration; /* W */
+
+                        if (1 >= delta)
+                        {
+                            m_powerConsumption = 0;
+                        }
+                        else if (delta >= m_powerConsumption)
+                        {
+                            m_powerConsumption = 0;
+                        }
+                        else
+                        {
+                            m_powerConsumption -= delta;
+                        }
+
+                        /* Calculate next time for decreasing the power consumption again. */
+                        m_decPowerDuration *= 2;
+                    }
+                }
+            }
+        }
+    }
     
     /** Minimum value for pulses per kWh, used for range check. */
     static const uint32_t   PULSES_PER_KWH_RANGE_MIN    = 1;
@@ -383,7 +431,9 @@ private:
     volatile uint32_t       m_pulseCnt;         /**< Counted pulses */
     volatile unsigned long  m_timestamp;        /**< Timestamp in ms of last pulse */
     volatile bool           m_isFirstPulse;     /**< Used to initialize the m_timestamp with the first pulse. */
-    volatile unsigned long  m_powerConsumption; /**< Average power consumption in W (calculated over 2 values) */
+    volatile unsigned long  m_powerConsumption; /**< Power consumption in W */
+    volatile unsigned long  m_lastTimeDiff;     /**< Last duration in ms between the last 2 pulses. */
+    volatile unsigned long  m_decPowerDuration; /**< Duration until the power will be decreased automatically because no pulse received yet. */
 
     /* Never copy an S0 smartmeter instance! */
     S0Smartmeter(const S0Smartmeter& interf);
