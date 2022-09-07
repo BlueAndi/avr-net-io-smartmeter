@@ -39,6 +39,8 @@
 #include <EthernetServer.h>
 #include <ArduinoHttpServer.h>
 #include <ArduinoJson.h>
+#include <avr/wdt.h>
+#include <avr/io.h>
 
 #include "Logging.h"
 #include "WebReqRouter.h"
@@ -91,22 +93,15 @@ static void handleS0InterfaceReq(EthernetClient& client, const HttpRequest& http
 static void handleS0InterfacesReq(EthernetClient& client, const HttpRequest& httpRequest);
 static void handleConfigureGetReq(EthernetClient& client, const HttpRequest& httpRequest);
 static void handleConfigurePostReq(EthernetClient& client, const HttpRequest& httpRequest);
+static void handleResetGetReq(EthernetClient& client, const HttpRequest& httpRequest);
+static void reset(void);
 
 /******************************************************************************
  * Variables
  *****************************************************************************/
 
-#if defined(DEBUG)
-
 /** Serial interface baudrate. */
 static const uint32_t           SERIAL_BAUDRATE             = 115200U;
-
-#else
-
-/** Serial interface baudrate. */
-static const uint32_t           SERIAL_BAUDRATE             = 19200U;
-
-#endif  /* defined(DEBUG) */
 
 /** Ethernet interface MAC address */
 static const uint8_t            DEVICE_MAC_ADDR[]           = { 0x00, 0x22, 0xf9, 0x01, 0x27, 0xeb };
@@ -127,7 +122,7 @@ static const char               HTML_PAGE_TAIL[] PROGMEM    = "</body>\r\n"
                                                             "</html>";
 
 /** Number of supported web request routes. */
-static const uint8_t            NUM_ROUTES                  = 5;
+static const uint8_t            NUM_ROUTES                  = 6;
 
 /** Web request router */
 static WebReqRouter<NUM_ROUTES> gWebReqRouter;
@@ -140,6 +135,12 @@ static EthernetServer           gWebServer(WEB_SRV_PORT);
 
 /** All S0 interface instances */
 static S0Smartmeter             gS0Smartmeters[CONFIG_S0_SMARTMETER_MAX_NUM];
+
+/** Flag is used to signal that a reset was requested via web interface. */
+static bool                     gIsResetReq                 = false;
+
+/** If a reset is requested, it will count down. If its 0, a reset will be performed. */
+static uint16_t                 gResetCnt                   = 4000;
 
 /******************************************************************************
  * External functions
@@ -198,12 +199,17 @@ void setup()
             LOG_ERROR(F("Failed to add route."));
         }
 
-        if (false == gWebReqRouter.addRoute(ArduinoHttpServer::Method::Get, "/api/configure/?", handleConfigureGetReq))
+        if (false == gWebReqRouter.addRoute(ArduinoHttpServer::Method::Get, "/configure/?", handleConfigureGetReq))
         {
             LOG_ERROR(F("Failed to add route."));
         }
 
-        if (false == gWebReqRouter.addRoute(ArduinoHttpServer::Method::Post, "/api/configure/?", handleConfigurePostReq))
+        if (false == gWebReqRouter.addRoute(ArduinoHttpServer::Method::Post, "/configure/?", handleConfigurePostReq))
+        {
+            LOG_ERROR(F("Failed to add route."));
+        }
+
+        if (false == gWebReqRouter.addRoute(ArduinoHttpServer::Method::Get, "/reset", handleResetGetReq))
         {
             LOG_ERROR(F("Failed to add route."));
         }
@@ -286,6 +292,23 @@ void loop()
     uint8_t s0SmartmeterIndex = 0;
 
     handleNetwork();
+
+    /* Is a reset requested? */
+    if (true == gIsResetReq)
+    {
+        /* Run countdown.
+         * Note, using just a delay() is not possible as it wouldn't handle
+         * the network during the countdown.
+         */
+        if (0 < gResetCnt)
+        {
+            --gResetCnt;
+        }
+        else
+        {
+            reset();
+        }
+    }
 
     /* Process all enabled S0 smartmeters. */
     for(s0SmartmeterIndex = 0; s0SmartmeterIndex < CONFIG_S0_SMARTMETER_MAX_NUM; ++s0SmartmeterIndex)
@@ -574,19 +597,18 @@ static void handleS0InterfacesReq(EthernetClient& client, const HttpRequest& htt
     ArduinoHttpServer::StreamHttpReply  httpReply(client, "application/json");
     String                              data;
     uint8_t                             s0SmartmeterIndex = 0;
-    DynamicJsonDocument                 jsonDoc(1024);
+    DynamicJsonDocument                 jsonDoc(CONFIG_S0_SMARTMETER_MAX_NUM * 256);
     JsonArray                           jsonDataArray     = jsonDoc.createNestedArray("data");
 
     for(s0SmartmeterIndex = 0; s0SmartmeterIndex < CONFIG_S0_SMARTMETER_MAX_NUM; ++s0SmartmeterIndex)
     {
-        S0Smartmeter&   s0Smartmeter    = gS0Smartmeters[s0SmartmeterIndex];
-        JsonObject      jsonData;
+        S0Smartmeter& s0Smartmeter = gS0Smartmeters[s0SmartmeterIndex];
 
         if (true == s0Smartmeter.isEnabled())
         {
-            s0Smartmeter2JSON(s0Smartmeter, jsonData);
+            JsonObject jsonData = jsonDataArray.createNestedObject();
 
-            jsonDataArray.add(jsonData);
+            s0Smartmeter2JSON(s0Smartmeter, jsonData);
         }
     }
 
@@ -905,6 +927,28 @@ static void handleConfigurePostReq(EthernetClient& client, const HttpRequest& ht
 }
 
 /**
+ * Handle the route for the /reset, which performs a reset.
+ *
+ * @param[in] client        Ethernet client, used to send the response.
+ * @param[in] httpRequest   The http request itself.
+ */
+static void handleResetGetReq(EthernetClient& client, const HttpRequest& httpRequest)
+{
+    ArduinoHttpServer::StreamHttpReply  httpReply(client, "text/html");
+    String                              data;
+
+    data += reinterpret_cast<const __FlashStringHelper*>(HTML_PAGE_HEAD);
+    data += F("ok");
+    data += reinterpret_cast<const __FlashStringHelper*>(HTML_PAGE_TAIL);
+
+    httpReply.send(data);
+
+    gIsResetReq = true;
+
+    return;
+}
+
+/**
  * ISR of pin change interrupt 0.
  */
 ISR(PCINT0_vect)
@@ -931,6 +975,49 @@ ISR(PCINT0_vect)
     }
 
     lastValue = value;
+
+    return;
+}
+
+/**
+ * Perform a reset.
+ */
+static void reset(void)
+{
+    /* Perform reset triggered by watchdog. */
+    wdt_enable(WDTO_30MS);
+    while(1)
+    {
+        asm("nop");
+    };
+}
+
+/*
+ * CAUTION! Older AVRs will have the watchdog timer disabled on a reset.
+ * For these older AVRs, doing a soft reset by enabling the watchdog is easy,
+ * as the watchdog will then be disabled after the reset. On newer AVRs, once
+ * the watchdog is enabled, then it stays enabled, even after a reset!
+ * For these newer AVRs a function needs to be added to the .init3 section
+ * (i.e. during the startup code, before main()) to disable the watchdog early
+ * enough so it does not continually reset the AVR.
+*/
+
+/* Disable the watchdog in the .init3 phase before main() is called. */
+void Watchdog_disableWatchdog(void) \
+__attribute__((naked)) \
+__attribute__((section(".init3")));
+
+/**
+ * Disable watchdog before any watchdog interrupt can happen.
+ * @see http://www.nongnu.org/avr-libc/user-manual/group__avr__watchdog.html
+ *
+ * Important note: Don't declare this function static, otherwise it will be
+ * removed by the linker.
+ */
+void Watchdog_disableWatchdog(void)
+{
+    MCUSR = 0;
+    wdt_disable();
 
     return;
 }

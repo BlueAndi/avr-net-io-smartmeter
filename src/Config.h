@@ -50,7 +50,7 @@
  * Max. number of supported S0 interfaces.
  * Note, max. of 8 are possible on port A.
  */
-#define CONFIG_S0_SMARTMETER_MAX_NUM    (8)
+#define CONFIG_S0_SMARTMETER_MAX_NUM    (2)
 
 /*******************************************************************************
     MACROS

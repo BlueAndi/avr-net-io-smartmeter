@@ -1,6 +1,7 @@
 # AVR-NET-IO-Smartmeter
-A simple smartmeter which is connected to a s0-interface and counts the power consumption. The power consumption can be read via REST-API.
-It runs on the AVR-NET-IO board from Pollin.
+A simple smartmeter which is connected to a S0-interface and counts the energy consumption or provides the current power consumption. The informations can be read via REST-API.
+
+It runs on the [Pollin AVR-NET-IO](https://www.pollin.de/p/avr-net-io-fertigmodul-810073) board.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://choosealicense.com/licenses/mit/)
 [![Repo Status](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
@@ -30,10 +31,12 @@ It runs on the AVR-NET-IO board from Pollin.
 # Motivation
 The idea was to have a simple way to get the power consumption of the heatpump and the rest of the house. The data shall be provided over a REST-API, which can easily be used from e.g. bash via curl. The data is retrieved periodically, pushed to a [influx-database](https://www.influxdata.com/) and visualized with [grafana](https://grafana.com/).
 
+Up to 8 S0 interface would be possible with the AVR-NET-IO board, but because of RAM limitation only 2 are configured. More may be possible, but that was never verified.
+
 # Usage
 
 1. Connect your S0 signal with the board, see the table in the next chapter.
-2. Configure S0 interface (0-7) by browsing to http://&lt;device-ip-address&gt;/configure/&lt;s0-interface&gt; with your favorite browser. Replace &lt;s0-interface&gt; with the S0 interface id.
+2. Configure S0 interface (0-1) by browsing to http://&lt;device-ip-address&gt;/configure/&lt;s0-interface&gt; with your favorite browser. Replace &lt;s0-interface&gt; with the S0 interface id.
 3. Configure the S0 interface and enable it.
 
 # Electronic
@@ -106,7 +109,7 @@ Get S0 interface data:
 * Energy consumption in Wh, depended on the number of counted pulses.
 
 ```<s0-interface-id>```:
-* The S0 interface id is in range [0; 7].
+* The S0 interface id is in range [0; 1].
 
 Response:
 ```json
