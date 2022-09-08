@@ -62,7 +62,7 @@
  * @param[in] argc  Number of command line arguments
  * @param[in] argv  Command line arguments
  */
-int main(int argc, char **argv)
+extern int main(int argc, char **argv)
 {
     (void)argc;
     (void)argv;
@@ -72,6 +72,22 @@ int main(int argc, char **argv)
     //RUN_TEST(...);
 
     return UNITY_END();
+}
+
+/**
+ * Setup a test. This function will be called before every test by unity.
+ */
+extern void setUp(void)
+{
+    /* Not used. */
+}
+
+/**
+ * Clean up test. This function will be called after every test by unity.
+ */
+extern void tearDown(void)
+{
+    /* Not used. */
 }
 
 /******************************************************************************
