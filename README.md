@@ -4,29 +4,29 @@ A simple smartmeter which is connected to a S0-interface and counts the energy c
 It runs on the [Pollin AVR-NET-IO](https://www.pollin.de/p/avr-net-io-fertigmodul-810073) board.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://choosealicense.com/licenses/mit/)
-[![Repo Status](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![Repo Status](https://www.repostatus.org/badges/latest/inactive.svg)](https://www.repostatus.org/#inactive)
 [![Release](https://img.shields.io/github/release/BlueAndi/avr-net-io-smartmeter.svg)](https://github.com/BlueAndi/avr-net-io-smartmeter/releases)
 [![PlatformIO CI](https://github.com/BlueAndi/avr-net-io-smartmeter/workflows/PlatformIO%20CI/badge.svg?branch=main)](https://github.com/BlueAndi/avr-net-io-smartmeter/actions?query=workflow%3A%22PlatformIO+CI%22)
 
-- [AVR-NET-IO-Smartmeter](#avr-net-io-smartmeter)
-- [Motivation](#motivation)
-- [Usage](#usage)
-- [Electronic](#electronic)
-- [Software](#software)
-  - [IDE](#ide)
-  - [Installation](#installation)
-  - [Install bootloader](#install-bootloader)
-  - [Change MAC address of network interface controller](#change-mac-address-of-network-interface-controller)
-  - [Build Project](#build-project)
-  - [Update of the device](#update-of-the-device)
-    - [Update via serial interface](#update-via-serial-interface)
-  - [Used Libraries](#used-libraries)
-- [REST API](#rest-api)
-  - [Get data from one single S0 interface (GET /api/s0-interface/&lt;s0-interface-id&gt;)](#get-data-from-one-single-s0-interface-get-apis0-interfaces0-interface-id)
-  - [Get data from all S0 interfaces at once (GET /api/s0-interfaces)](#get-data-from-all-s0-interfaces-at-once-get-apis0-interfaces)
-- [Issues, Ideas And Bugs](#issues-ideas-and-bugs)
-- [License](#license)
-- [Contribution](#contribution)
+* [AVR-NET-IO-Smartmeter](#avr-net-io-smartmeter)
+* [Motivation](#motivation)
+* [Usage](#usage)
+* [Electronic](#electronic)
+* [Software](#software)
+  * [IDE](#ide)
+  * [Installation](#installation)
+  * [Install bootloader](#install-bootloader)
+  * [Change MAC address of network interface controller](#change-mac-address-of-network-interface-controller)
+  * [Build Project](#build-project)
+  * [Update of the device](#update-of-the-device)
+    * [Update via serial interface](#update-via-serial-interface)
+  * [Used Libraries](#used-libraries)
+* [REST API](#rest-api)
+  * [Get data from one single S0 interface (GET /api/s0-interface/\<s0-interface-id\>)](#get-data-from-one-single-s0-interface-get-apis0-interfaces0-interface-id)
+  * [Get data from all S0 interfaces at once (GET /api/s0-interfaces)](#get-data-from-all-s0-interfaces-at-once-get-apis0-interfaces)
+* [Issues, Ideas And Bugs](#issues-ideas-and-bugs)
+* [License](#license)
+* [Contribution](#contribution)
 
 # Motivation
 The idea was to have a simple way to get the power consumption of the heatpump and the rest of the house. The data shall be provided over a REST-API, which can easily be used from e.g. bash via curl. The data is retrieved periodically, pushed to a [influx-database](https://www.influxdata.com/) and visualized with [grafana](https://grafana.com/).
@@ -44,6 +44,10 @@ Up to 8 S0 interface would be possible with the AVR-NET-IO board, but because of
 * [Pollin AVR-NET-IO](https://www.pollin.de/p/avr-net-io-fertigmodul-810073)
 
 Note, the AVR-NET-IO has original a ATmega32-16PU, which was replaced with a ATmega644p.
+
+> [!WARNING]  
+> 2024-01-01: The Pollin AVR-NET-IO development is obsolete and not available anymore.\
+> There is no known successor development board.
 
 The following table shows the possible connections for S0 signals.
 
